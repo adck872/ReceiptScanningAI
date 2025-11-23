@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Dashboard - Add to Pantry</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='index.css') }}">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Dashboard</h1>
+      <div class="summary-box">
+        <p>Total Items in Pantry: <strong>{{ total_items }}</strong></p>
+      </div>
+      {% if notifications %}
+      <div class="notifications">
+        <h2>Expiring Soon</h2>
+        <ul>
+          {% for note in notifications %}
+            <li>{{ note }}</li>
+          {% endfor %}
+        </ul>
+      </div>
+      {% endif %}
+    </header>
+    
+    <section class="upload-section">
+      <h2>Upload Receipt</h2>
+      <p> update your pantry automatically.</p>
+      <form method="post" enctype="multipart/form-data">
+        <input type="file" name="receipt" accept="image/*" required>
+        <button type="submit">Upload & Add to Pantry</button>
+      </form>
+    </section>
+    
+    <nav class="bottom-nav">
+      <a href="{{ url_for('index') }}">
+        <img src="{{ url_for('static', filename='images/home.png') }}" alt="Home" />
+      </a>
+      <a href="{{ url_for('pantry') }}">
+        <img src="{{ url_for('static', filename='images/pantrylogo.png') }}" alt="Pantry" />
+      </a>
+    </nav>
+  </div>
+</body>
+</html>

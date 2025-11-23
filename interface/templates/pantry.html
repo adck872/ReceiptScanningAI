@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Pantry Inventory</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='pantry.css') }}">
+  <style>
+  
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background-color: rgba(0, 0, 0, 0.5);
+    }
+    .modal-content {
+      background-color: #fff;
+      margin: 15% auto;
+      padding: 20px;
+      border: 1px solid #888;
+      width: 90%;
+      max-width: 400px;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    }
+    .close {
+      color: #aaa;
+      float: right;
+      font-size: 28px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    .close:hover {
+      color: #000;
+    }
+    .modal form label {
+      display: block;
+      margin-top: 10px;
+      font-weight: bold;
+    }
+    .modal form input[type="text"],
+    .modal form input[type="date"] {
+      width: 100%;
+      padding: 8px;
+      margin-top: 5px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      box-sizing: border-box;
+      font-size: 16px; 
+    }
+    .modal form button {
+      margin-top: 15px;
+      background-color: #6a8d73;
+      color: #fff;
+      border: none;
+      padding: 12px;
+      border-radius: 4px;
+      font-size: 16px;
+      width: 100%;
+      cursor: pointer;
+    }
+    .modal form button:hover {
+      background-color: #597d64;
+    }
+
+    @media screen and (max-width: 600px) {
+      .modal-content {
+        margin: 10% auto;
+        padding: 15px;
+        width: 95%;
+      }
+      
+      .modal form button {
+        padding: 14px;
+      }
+      
+      .close {
+        font-size: 32px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Pantry Inventory</h1>
+    {% if pantry_contents %}
+      <table>
+        <tr>
+          <th>Product Name</th>
+          <th>Expiry Date</th>
+          <th>Actions</th>
+        </tr>
+        {% for row in pantry_contents %}
+        <tr>
+          <td>{{ row['name'] }}</td>
+          <td>{{ row['expirydate'] }}</td>
+          <td style="text-align: center;">
+            <div class="action-buttons">
+              
+              <a href="#" class="edit-btn" data-id="{{ row['id'] }}" data-name="{{ row['name'] }}" data-expiry="{{ row['expirydate'] }}">
+                <img class="action-icon" src="{{ url_for('static', filename='images/edit.png') }}" alt="Edit" />
+              </a>
+              
+              <form action="{{ url_for('delete', item_id=row['id']) }}" method="post" style="display:inline;">
+                <button type="submit" style="background:none; border:none; padding:0;" onclick="return confirm('Are you sure you want to delete this item?');">
+                  <img class="action-icon" src="{{ url_for('static', filename='images/delete.png') }}" alt="Delete" />
+                </button>
+              </form>
+            </div>
+          </td>
+          
+          
+        </tr>
+        {% endfor %}
+      </table>
+    {% else %}
+      <p>No items in the pantry.</p>
+    {% endif %}
+  </div>
+  
+  
+  <nav class="bottom-nav">
+    <a href="{{ url_for('index') }}">
+      <img src="{{ url_for('static', filename='images/home.png') }}" alt="Home" />
+    </a>
+    <a href="{{ url_for('pantry') }}">
+      <img src="{{ url_for('static', filename='images/pantrylogo.png') }}" alt="Pantry" />
+    </a>
+  </nav>
+  
+  
+  <div id="editModal" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="closeEditModal()">&times;</span>
+      <h2>Edit Pantry Item</h2>
+      <form id="editForm" method="post" action="">
+        <input type="hidden" id="editItemId" name="item_id">
+        <label for="editName">Product Name</label>
+        <input type="text" id="editName" name="name" required>
+        
+        <label for="editExpiry">Expiry Date</label>
+        <input type="date" id="editExpiry" name="expirydate" required>
+        
+        <button type="submit">Save Changes</button>
+      </form>
+    </div>
+  </div>
+  
+  <script>
+    document.querySelectorAll('.edit-btn').forEach(function(button) {
+      button.addEventListener('click', function(e) {
+        e.preventDefault();
+        var id = this.getAttribute('data-id');
+        var name = this.getAttribute('data-name');
+        var expiry = this.getAttribute('data-expiry');
+        openEditModal(id, name, expiry);
+      });
+    });
+    
+    function openEditModal(id, name, expiry) {
+      document.getElementById('editForm').action = '/edit/' + id;
+      document.getElementById('editItemId').value = id;
+      document.getElementById('editName').value = name;
+      document.getElementById('editExpiry').value = expiry;
+      document.getElementById('editModal').style.display = 'block';
+    }
+    
+    function closeEditModal() {
+      document.getElementById('editModal').style.display = 'none';
+    }
+    
+    // Close modal if clicked outside
+    window.onclick = function(event) {
+      var modal = document.getElementById('editModal');
+      if (event.target == modal) {
+        closeEditModal();
+      }
+    }
+  </script>
+</body>
+</html>
